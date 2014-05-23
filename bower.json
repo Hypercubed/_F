@@ -1,0 +1,23 @@
+{
+  "name": "_F",
+  "version": "0.0.0",
+  "description": "a _F thing",
+  "authors": [
+    "J. Harshbarger"
+  ],
+  "main": "_F.js",
+  "keywords": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "d3": "~3.4.8"
+  },
+  "homepage": "https://github.com/Hypercubed/_F"
+}
