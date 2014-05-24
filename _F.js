@@ -1,59 +1,25 @@
-/**
- * _F - a _F thing
- * Copyright (c) 2014, Jayson Harshbarger. (MIT Licensed)
- * https://github.com/Hypercubed/_F
- */
+//     _F - a _F thing
+//     Copyright (c) 2014, Jayson Harshbarger. (MIT Licensed)
+//     https://github.com/Hypercubed/_F
 
-/*
- * _F 0.0.0
- * (c) 2014 J. Harshbarger
- * Licensed MIT
- */
+// _F
+// -----
+// Functional chaining in js.
+
 ;(function() {
-  if (!Function.prototype.bind) {  // https://github.com/ariya/phantomjs/issues/10522
-    Function.prototype.bind = function (oThis) {
-      if (typeof this !== "function") {
-        // closest thing possible to the ECMAScript 5 internal IsCallable function
-        throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
-      }
 
-      var aArgs = Array.prototype.slice.call(arguments, 1), 
-          fToBind = this, 
-          fNOP = function () {},
-          fBound = function () {
-            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis,
-                                 aArgs.concat(Array.prototype.slice.call(arguments)));
-          };
-
-      fNOP.prototype = this.prototype;
-      fBound.prototype = new fNOP();
-
-      return fBound;
-    };
+  // (private) Copies from one object to another
+  function extend(dest, src) {
+    Object.keys(src).forEach(function(key) {
+      dest[key] = src[key];
+    });
+    return dest;
   }
-})();
 
-;(function() {
-
-  var CHAINS = {
-    and: function(fa,fb) {
-      return factory(this.accessor, function(a, i, d) {
-        return fa.call(this,d,i) && fb.call(this,d,i);
-      });
-    },
-    or: function(fa,fb) {
-      return factory(this.accessor, function(a, i, d) {
-        return fa.call(this, d, i) || fb.call(this, d, i);
-      });
-    },
-    not: function(fa,fb) {
-      return factory(this.accessor, function(a, i, d) {
-        return !fb.call(this, d, i);
-      });
-    }
-  };
-
-  var OPS = {
+  // Operators
+  // -----
+  // Operators take a value and return a new accessor function
+  var _proto_ops = {
     eq: function(v) {
       return factory(this.accessor, function(a) {return a == v;});
     },
@@ -65,17 +31,34 @@
     }
   };
 
-  function extend(dest, src) {
-    Object.keys(src).forEach(function(key) {
-      dest[key] = src[key];
-    });
-    return dest;
-  }
+  // Chaining functions
+  // -----
+  // Chaining functions take a two accessor functions and return a new accessor
+  
+  var _proto_chains = {
+    and: function(fa,fb) {
+      return factory(this.accessor, function(a, i, d) {
+        return !!(fa.call(this,d,i) && fb.call(this,d,i));
+      });
+    },
+    or: function(fa,fb) {
+      return factory(this.accessor, function(a, i, d) {
+        return !!(fa.call(this, d, i) || fb.call(this, d, i));
+      });
+    },
+    not: function(fa,fb) {
+      return factory(this.accessor, function(a, i, d) {
+        return !fb.call(this, d, i);
+      });
+    }
+  };
 
-  var _proto = extend({}, OPS);
+  // Prototype of _F functions
+  var _proto = extend({}, _proto_ops);
 
-  Object.keys(CHAINS).forEach(function(o) {
-    var _chain = _proto[o] = function(_c) {
+  // Wraps chain functions (and, or, not) and adds to prototype
+  Object.keys(_proto_chains).forEach(function(o) {
+    _proto[o] = function(_c) {
 
       if (arguments.length < 1) {
         return extend({}, _proto[o]);
@@ -85,17 +68,19 @@
         _c = factory(this.accessor, _c);
       }
 
-      return CHAINS[o](this, _c);
+      return _proto_chains[o](this, _c);
     };
 
-    Object.keys(OPS).forEach(function(k) {
-      _chain[k] = (function(v) {
-        var _c = OPS[k].apply(this, arguments);
-        return _chain.call(this, _c);
+    // Wraps operators on chain functions (eq, lt, gt) and adds to prototype
+    Object.keys(_proto_ops).forEach(function(k) {
+      _proto[o][k] = (function(v) {
+        var _c = _proto_ops[k].apply(this, arguments);
+        return _proto[o].call(this, _c);
       });
     });
   });
 
+  // _F factory
   function factory(key, ret) { // Factory
 
     var _accessor = key,
@@ -120,10 +105,11 @@
 
     extend(_fn, _proto);
 
-    Object.keys(CHAINS).forEach(function(o) {
-      Object.keys(OPS).forEach(function(k) {
+    // Wraps operators
+    Object.keys(_proto_chains).forEach(function(o) {
+      Object.keys(_proto_ops).forEach(function(k) {
         _fn[o][k] = (function(v) {
-          var _c = OPS[k].apply(this, arguments);
+          var _c = _proto_ops[k].apply(this, arguments);
           return _proto[o].call(this, _c);
         }).bind(_fn);
       });
@@ -132,6 +118,7 @@
     return _fn;
   }
 
+  // wrap up for Node.js or the browser
   if (typeof module !== 'undefined' && typeof exports === 'object') {
     module.exports = factory;
   } else if (typeof define === 'function' && define.amd) {
@@ -145,3 +132,29 @@
 }).call(function() {
   return this || (typeof window !== 'undefined' ? window : global);
 }());
+
+// Function.prototype.bind shim
+// -----------
+// See [phantomjs/issues/10522](https://github.com/ariya/phantomjs/issues/10522).
+;(function() {
+  if (!Function.prototype.bind) {
+    Function.prototype.bind = function (oThis) {
+      if (typeof this !== "function") {
+        throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+      }
+
+      var aArgs = Array.prototype.slice.call(arguments, 1), 
+          fToBind = this, 
+          fNOP = function () {},
+          fBound = function () {
+            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis,
+                                 aArgs.concat(Array.prototype.slice.call(arguments)));
+          };
+
+      fNOP.prototype = this.prototype;
+      fBound.prototype = new fNOP();
+
+      return fBound;
+    };
+  }
+})();

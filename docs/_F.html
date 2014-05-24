@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>_F.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>_F.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <pre><code>_F - a _F thing
+Copyright (c) 2014, Jayson Harshbarger. (MIT Licensed)
+https://github.com/Hypercubed/_F
+</code></pre>
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2 id="_f">_F</h2>
+<p>Functional chaining in js.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+;(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>(private) Copies from one object to another</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">extend</span><span class="hljs-params">(dest, src)</span> {</span>
+    <span class="hljs-built_in">Object</span>.keys(src).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(key)</span> {</span>
+      dest[key] = src[key];
+    });
+    <span class="hljs-keyword">return</span> dest;
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <h2 id="operators">Operators</h2>
+<p>Operators take a value and return a new accessor function</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> _proto_ops = {
+    eq: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(v)</span> {</span>
+      <span class="hljs-keyword">return</span> factory(<span class="hljs-keyword">this</span>.accessor, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(a)</span> {</span><span class="hljs-keyword">return</span> a == v;});
+    },
+    lt: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(v)</span> {</span>
+      <span class="hljs-keyword">return</span> factory(<span class="hljs-keyword">this</span>.accessor, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(a)</span> {</span><span class="hljs-keyword">return</span> a &lt; v;});
+    },
+    gt: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(v)</span> {</span>
+      <span class="hljs-keyword">return</span> factory(<span class="hljs-keyword">this</span>.accessor, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(a)</span> {</span><span class="hljs-keyword">return</span> a &gt; v;});
+    }
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <h2 id="chaining-functions">Chaining functions</h2>
+<p>Chaining functions take a two accessor functions and return a new accessor</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  
+  <span class="hljs-keyword">var</span> _proto_chains = {
+    and: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(fa,fb)</span> {</span>
+      <span class="hljs-keyword">return</span> factory(<span class="hljs-keyword">this</span>.accessor, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(a, i, d)</span> {</span>
+        <span class="hljs-keyword">return</span> !!(fa.call(<span class="hljs-keyword">this</span>,d,i) &amp;&amp; fb.call(<span class="hljs-keyword">this</span>,d,i));
+      });
+    },
+    or: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(fa,fb)</span> {</span>
+      <span class="hljs-keyword">return</span> factory(<span class="hljs-keyword">this</span>.accessor, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(a, i, d)</span> {</span>
+        <span class="hljs-keyword">return</span> !!(fa.call(<span class="hljs-keyword">this</span>, d, i) || fb.call(<span class="hljs-keyword">this</span>, d, i));
+      });
+    },
+    not: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(fa,fb)</span> {</span>
+      <span class="hljs-keyword">return</span> factory(<span class="hljs-keyword">this</span>.accessor, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(a, i, d)</span> {</span>
+        <span class="hljs-keyword">return</span> !fb.call(<span class="hljs-keyword">this</span>, d, i);
+      });
+    }
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Prototype of _F functions</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> _proto = extend({}, _proto_ops);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Wraps chain functions (and, or, not) and adds to prototype</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-built_in">Object</span>.keys(_proto_chains).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(o)</span> {</span>
+    _proto[o] = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(_c)</span> {</span>
+
+      <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>.length &lt; <span class="hljs-number">1</span>) {
+        <span class="hljs-keyword">return</span> extend({}, _proto[o]);
+      }
+
+      <span class="hljs-keyword">if</span> (_c.hasOwnProperty(<span class="hljs-string">'accessor'</span>) &amp;&amp; _c.accessor === <span class="hljs-literal">undefined</span>) {
+        _c = factory(<span class="hljs-keyword">this</span>.accessor, _c);
+      }
+
+      <span class="hljs-keyword">return</span> _proto_chains[o](<span class="hljs-keyword">this</span>, _c);
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Wraps operators on chain functions (eq, lt, gt) and adds to prototype</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">Object</span>.keys(_proto_ops).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(k)</span> {</span>
+      _proto[o][k] = (<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(v)</span> {</span>
+        <span class="hljs-keyword">var</span> _c = _proto_ops[k].apply(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);
+        <span class="hljs-keyword">return</span> _proto[o].call(<span class="hljs-keyword">this</span>, _c);
+      });
+    });
+  });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>_F factory</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">factory</span><span class="hljs-params">(key, ret)</span> {</span> <span class="hljs-comment">// Factory</span>
+
+    <span class="hljs-keyword">var</span> _accessor = key,
+        _fn;
+
+    <span class="hljs-keyword">if</span> (!key || key === <span class="hljs-literal">undefined</span>) _accessor = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(d)</span> {</span> <span class="hljs-keyword">return</span> d; };
+    <span class="hljs-keyword">if</span> (key === <span class="hljs-string">'$index'</span>) _accessor = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(d, i)</span> {</span> <span class="hljs-keyword">return</span> i; };
+    <span class="hljs-keyword">if</span> (key === <span class="hljs-string">'$this'</span>) _accessor = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(d, i)</span> {</span> <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>; };
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> _accessor !== <span class="hljs-string">'function'</span>) _accessor = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(d)</span> {</span> <span class="hljs-keyword">return</span> d[key]; };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Create base function object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> ret === <span class="hljs-string">'function'</span>) {
+      _fn = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(d, i, j)</span> {</span>
+        <span class="hljs-keyword">return</span> ret.call(<span class="hljs-keyword">this</span>, _accessor.apply(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>), i, d);
+      };
+    } <span class="hljs-keyword">else</span> {
+      _fn = _accessor;
+    }
+
+    _fn.key = key;
+    _fn.accessor = (key) ? _accessor : <span class="hljs-literal">undefined</span>;
+
+    extend(_fn, _proto);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Wraps operators</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">Object</span>.keys(_proto_chains).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(o)</span> {</span>
+      <span class="hljs-built_in">Object</span>.keys(_proto_ops).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(k)</span> {</span>
+        _fn[o][k] = (<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(v)</span> {</span>
+          <span class="hljs-keyword">var</span> _c = _proto_ops[k].apply(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);
+          <span class="hljs-keyword">return</span> _proto[o].call(<span class="hljs-keyword">this</span>, _c);
+        }).bind(_fn);
+      });
+    });
+
+    <span class="hljs-keyword">return</span> _fn;
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>wrap up for Node.js or the browser</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> module !== <span class="hljs-string">'undefined'</span> &amp;&amp; <span class="hljs-keyword">typeof</span> exports === <span class="hljs-string">'object'</span>) {
+    module.exports = factory;
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> define === <span class="hljs-string">'function'</span> &amp;&amp; define.amd) {
+    define(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+      <span class="hljs-keyword">return</span> factory;
+    });
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">this</span>._F = factory;
+  }
+
+}).call(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span> || (<span class="hljs-keyword">typeof</span> window !== <span class="hljs-string">'undefined'</span> ? window : global);
+}());</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <h2 id="function-prototype-bind-shim">Function.prototype.bind shim</h2>
+<p>See <a href="https://github.com/ariya/phantomjs/issues/10522">phantomjs/issues/10522</a>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>;(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+  <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Function</span>.prototype.bind) {
+    <span class="hljs-built_in">Function</span>.prototype.bind = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(oThis)</span> {</span>
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-keyword">this</span> !== <span class="hljs-string">"function"</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">"Function.prototype.bind - what is trying to be bound is not callable"</span>);
+      }
+
+      <span class="hljs-keyword">var</span> aArgs = <span class="hljs-built_in">Array</span>.prototype.slice.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">1</span>), 
+          fToBind = <span class="hljs-keyword">this</span>, 
+          fNOP = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>},
+          fBound = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
+            <span class="hljs-keyword">return</span> fToBind.apply(<span class="hljs-keyword">this</span> <span class="hljs-keyword">instanceof</span> fNOP &amp;&amp; oThis ? <span class="hljs-keyword">this</span> : oThis,
+                                 aArgs.concat(<span class="hljs-built_in">Array</span>.prototype.slice.call(<span class="hljs-built_in">arguments</span>)));
+          };
+
+      fNOP.prototype = <span class="hljs-keyword">this</span>.prototype;
+      fBound.prototype = <span class="hljs-keyword">new</span> fNOP();
+
+      <span class="hljs-keyword">return</span> fBound;
+    };
+  }
+})();</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
