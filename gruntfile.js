@@ -94,8 +94,8 @@ module.exports = function(grunt){
   grunt.registerTask('test', ['simplemocha']);
   grunt.registerTask('test:all', ['simplemocha', 'karma:once']);
 
-  grunt.registerTask('mywatch', ['watch:fast']);
-  grunt.registerTask('mywatch:all', ['watch:all']);
+  grunt.registerTask('testwatch', ['watch:fast']);
+  grunt.registerTask('testwatch:all', ['watch:all']);
 
   grunt.registerTask('build', ['test:all', 'uglify']);
   grunt.registerTask('default', ['test']);

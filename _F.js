@@ -16,68 +16,108 @@
     return dest;
   }
 
+  // Prototype of _F functions
+  var _proto = {};
+
   // Operators
   // -----
   // Operators take a value and return a new accessor function
   var _proto_ops = {
     eq: function(v) {
-      return factory(this.accessor, function(a) {return a == v;});
+      return function(a) {return a == v;};
     },
     lt: function(v) {
-      return factory(this.accessor, function(a) {return a < v;});
+      return function(a) {return a < v;};
     },
     gt: function(v) {
-      return factory(this.accessor, function(a) {return a > v;});
-    }
+      return function(a) {return a > v;};
+    },
+    lte: function(v) {
+      return function(a) {return a <= v;};
+    },    
+    gte: function(v) {
+      return function(a) {return a >= v;};
+    }//,
+    //match: function(v) {  // TODO: test
+    //  return factory(this.accessor, function(a) { return a.match(v);});
+    //},
+    //prop: function(v) {  // TODO: test
+    //  return factory(this.accessor, function(a) { return a[v];});
+    //},
   };
 
   // Chaining functions
   // -----
-  // Chaining functions take a two accessor functions and return a new accessor
-  
+  // Chaining functions take a two accessor functions and return a new accessor, returning `true` or `false`
+  // The second function will not be call if the first returns false
   var _proto_chains = {
-    and: function(fa,fb) {
-      return factory(this.accessor, function(a, i, d) {
-        return !!(fa.call(this,d,i) && fb.call(this,d,i));
-      });
+    and: function(f,g) {
+      return function(a, i, d) {
+        return !!(f.call(this,d,i) && g.call(this,d,i));
+      };
     },
-    or: function(fa,fb) {
-      return factory(this.accessor, function(a, i, d) {
-        return !!(fa.call(this, d, i) || fb.call(this, d, i));
-      });
+    or: function(f,g) {
+      return function(a, i, d) {
+        return !!(f.call(this, d, i) || g.call(this, d, i));
+      };
     },
-    not: function(fa,fb) {
-      return factory(this.accessor, function(a, i, d) {
-        return !fb.call(this, d, i);
-      });
+    not: function(f,g) {
+      return function(a, i, d) {
+        return !g.call(this, d, i);
+      };
     }
   };
 
-  // Prototype of _F functions
-  var _proto = extend({}, _proto_ops);
-
-  // Wraps chain functions (and, or, not) and adds to prototype
-  Object.keys(_proto_chains).forEach(function(o) {
-    _proto[o] = function(_c) {
-
-      if (arguments.length < 1) {
-        return extend({}, _proto[o]);
-      }
-
+  /* _proto.chainFn = function(f, _c) {
       if (_c.hasOwnProperty('accessor') && _c.accessor === undefined) {
         _c = factory(this.accessor, _c);
       }
+      return f(this, _c);
+  } */
 
-      return _proto_chains[o](this, _c);
-    };
+  var _wrap_op = function(_fn) {
+    return function() {
+      var fn = _fn.apply(this, arguments);
+      return factory(this.accessor, fn);
+    }
+  }
+
+  var _wrap_chain = function(_fn) {
+    return function(g) {
+      if (g.hasOwnProperty('accessor') && g.accessor === undefined) {
+        g = factory(this.accessor, g);
+      }
+      var fn = _fn.call(this, this, g);
+      return factory(this.accessor, fn);
+    }
+  }
+
+  // Wraps operators in factor generator
+  Object.keys(_proto_ops).forEach(function(k) {
+    _proto[k] = _wrap_op(_proto_ops[k]);
+  });
+
+  // Wraps chain functions (and, or, not) and adds to prototype
+  Object.keys(_proto_chains).forEach(function(o) {
+    //var _wrapped = _wrap_chain(_proto_chains[o]);
+
+    //_proto[o] = function(g) {
+    //  if (arguments.length < 1) {
+    //    return extend({}, _proto[o]);
+    //  }
+    //  return _wrapped.call(this,g);
+    //}
+
+    _proto[o] = _wrap_chain(_proto_chains[o]);
 
     // Wraps operators on chain functions (eq, lt, gt) and adds to prototype
     Object.keys(_proto_ops).forEach(function(k) {
-      _proto[o][k] = (function(v) {
-        var _c = _proto_ops[k].apply(this, arguments);
-        return _proto[o].call(this, _c);
-      });
+      _proto[o][k] = function(v) {
+        var val = _proto[k].call(this, v);
+        return _proto[o](val);
+      };
     });
+
   });
 
   // _F factory
@@ -105,15 +145,15 @@
 
     extend(_fn, _proto);
 
-    // Wraps operators
-    Object.keys(_proto_chains).forEach(function(o) {
-      Object.keys(_proto_ops).forEach(function(k) {
-        _fn[o][k] = (function(v) {
-          var _c = _proto_ops[k].apply(this, arguments);
-          return _proto[o].call(this, _c);
-        }).bind(_fn);
-      });
-    });
+    // Wraps chained operators.... this is bad!!!
+    //Object.keys(_proto_chains).forEach(function(o) {
+    //  Object.keys(_proto_ops).forEach(function(k) {
+    //    _fn[o][k] = (function(v) {
+    //      var _c = _proto[k].apply(this, arguments)
+    //      return _proto[o].call(this, _c);
+    //    }).bind(_fn);
+    //  });
+    //});
 
     return _fn;
   }

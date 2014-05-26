@@ -146,6 +146,20 @@
     describe('#eq', function() {
       it('should work', function() {
         var F = _F('year').eq(1977);
+        var F2 = _F('year').lt(1977);
+        var F2 = _F('year').gt(1977);
+
+        expect(F).to.be.a('function');
+        expect(F(data[0])).to.be.a('boolean');
+        expect(F(data[0])).to.equal(true);
+        expect(F(data[1])).to.equal(false);
+        expect(data.filter(F)).to.have.length(1);
+
+        expect(F).to.have.property('key');
+      });
+
+      it('should not interfere', function() {
+        var F = _F('year').eq(1977);
 
         expect(F).to.be.a('function');
         expect(F(data[0])).to.be.a('boolean');
@@ -179,6 +193,29 @@
       });
     });
 
+
+    describe('#lte', function() {
+      it('should work with key', function() {
+        var F = _F('year').lte(newDate(1989));
+
+        expect(F).to.be.a('function');
+        expect(F(data[0])).to.be.a('boolean');
+        expect(F(data[0])).to.equal(true);
+        expect(data.filter(F)).to.have.length(13);
+
+        expect(newDate.called).to.equal(1);
+
+      });
+
+      it('should work with $index', function() {
+        var F = _F('$index').lte(10);
+
+        expect(F).to.be.a('function');
+        expect(data.filter(F)).to.have.length(11);
+        expect(data.filter(F)[9]).to.equal(data[9]);
+      });
+    });
+
     describe('#gt', function() {
       it('should work with key', function() {
         var F = _F('year').gt(newDate('1979'));
@@ -196,6 +233,26 @@
         expect(F).to.be.a('function');
         expect(data.filter(F)).to.have.length(data.length - 11);
         expect(data.filter(F)[0]).to.equal(data[11]);
+      });
+    });
+
+    describe('#gte', function() {
+      it('should work with key', function() {
+        var F = _F('year').gte(newDate('1980'));
+
+        expect(F).to.be.a('function');
+        expect(F(data[0])).to.be.a('boolean');
+        expect(F(data[0])).to.equal(false);
+        expect(data.filter(F)).to.have.length(26);
+        expect(newDate.called).to.equal(1);
+      });
+
+      it('should work with $index', function() {
+        var F = _F('$index').gte(10);
+
+        expect(F).to.be.a('function');
+        expect(data.filter(F)).to.have.length(data.length - 10);
+        expect(data.filter(F)[0]).to.equal(data[10]);
       });
     });
 
@@ -266,8 +323,25 @@
         expect(mean).to.equal(20.986);
       });
 
+      it('chaining should not interfere', function() {
+        var F1 = _F('year').gt(newDate('1979'));
+        var F = F1.and.lt(newDate(1990));
 
-      it('should be chainable, alternate form', function() {
+        var _F1 = _F('year').gt(newDate('1979'));
+        var _F = F1.and.lt(newDate(1990));
+
+        expect(F).to.be.a('function');
+        expect(F(data[0])).to.be.a('boolean');
+        expect(F(data[0])).to.equal(false);
+        expect(data.filter(F)).to.have.length(10);
+
+        expect(newDate.called).to.equal(2);
+
+        var mean = d3_mean(data.filter(F), _F('value'));
+        expect(mean).to.equal(20.986);
+      });
+
+      xit('should be chainable, alternate form', function() {
         var F1 = _F('year').gt(newDate('1979'));
         var F = F1.and().lt(newDate(1990));
 
@@ -367,7 +441,7 @@
         expect(mean).to.equal(10.881923076923073);
       });
 
-      it('should be chainable, alternate form', function() {
+      xit('should be chainable, alternate form', function() {
         var F1 = _F('year');
 
         //console.log(F1.lt(1990)(data[0]));
@@ -452,7 +526,7 @@
         expect(mean).to.equal(3.845789473684211);
       });
 
-      it('should be chainable, alternate form', function() {
+      xit('should be chainable, alternate form', function() {
         var F = _F('year').gt(newDate(1989)).or().lt(newDate(1980));
 
         expect(F).to.be.a('function');
@@ -467,7 +541,6 @@
       });
 
     });
-
 
     xit('#gt chaining', function() {
       var F = _F('year').gt(1979).lt(1990);
