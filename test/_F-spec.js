@@ -218,7 +218,7 @@
 
     describe('#gt', function() {
       it('should work with key', function() {
-        var F = _F('year').gt(newDate('1979'));
+        var F = _F('year').gt(newDate(1979));
 
         expect(F).to.be.a('function');
         expect(F(data[0])).to.be.a('boolean');
@@ -294,7 +294,7 @@
       });
 
       it('should work with identity function', function() {
-        var F = _F('year').gt(newDate('1979')).and(_F().lt(newDate(1990)));
+        var F = _F('year').gt(newDate(1979)).and(_F().lt(newDate(1990)));
 
         expect(F).to.be.a('function');
         expect(F(data[0])).to.be.a('boolean');
@@ -308,8 +308,8 @@
 
       });
 
-      it('should be chainable', function() {
-        var F1 = _F('year').gt(newDate('1979'));
+      xit('should be chainable', function() {
+        var F1 = _F('year').gt(newDate(1979));
         var F = F1.and.lt(newDate(1990));
 
         expect(F).to.be.a('function');
@@ -324,25 +324,25 @@
       });
 
       it('chaining should not interfere', function() {
-        var F1 = _F('year').gt(newDate('1979'));
-        var F = F1.and.lt(newDate(1990));
+        var F1 = _F('year').gt(newDate(1979));
+        var F = F1.and().lt(newDate(1990));
 
-        var _F1 = _F('year').gt(newDate('1979'));
-        var _F = F1.and.lt(newDate(1990));
+        _F('year').lt(newDate(1979));
+        F1.and().gt(newDate(1990));
 
         expect(F).to.be.a('function');
         expect(F(data[0])).to.be.a('boolean');
         expect(F(data[0])).to.equal(false);
         expect(data.filter(F)).to.have.length(10);
 
-        expect(newDate.called).to.equal(2);
+        expect(newDate.called).to.equal(4);
 
         var mean = d3_mean(data.filter(F), _F('value'));
         expect(mean).to.equal(20.986);
       });
 
-      xit('should be chainable, alternate form', function() {
-        var F1 = _F('year').gt(newDate('1979'));
+      it('should be chainable, alternate form', function() {
+        var F1 = _F('year').gt(newDate(1979));
         var F = F1.and().lt(newDate(1990));
 
         expect(F).to.be.a('function');
@@ -358,7 +358,7 @@
 
       it('should be chainable with simple accessor', function() {
         var F2 = function(d) {
-          return d.year > newDate('1979');
+          return d.year > newDate(1979);
         };
         var F = _F('year').lt(newDate(1990)).and(F2);
 
@@ -427,7 +427,7 @@
 
       });
 
-      it('should be chainable', function() {
+      xit('should be chainable', function() {
         var F = _F('year').not.lt(newDate(1980));
 
         expect(F).to.be.a('function');
@@ -441,7 +441,7 @@
         expect(mean).to.equal(10.881923076923073);
       });
 
-      xit('should be chainable, alternate form', function() {
+      it('should be chainable, alternate form', function() {
         var F1 = _F('year');
 
         //console.log(F1.lt(1990)(data[0]));
@@ -512,7 +512,7 @@
 
       });
 
-      it('should be chainable', function() {
+      xit('should be chainable', function() {
         var F = _F('year').gt(newDate(1989)).or.lt(newDate(1980));
 
         expect(F).to.be.a('function');
@@ -526,7 +526,7 @@
         expect(mean).to.equal(3.845789473684211);
       });
 
-      xit('should be chainable, alternate form', function() {
+      it('should be chainable, alternate form', function() {
         var F = _F('year').gt(newDate(1989)).or().lt(newDate(1980));
 
         expect(F).to.be.a('function');

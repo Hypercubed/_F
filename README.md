@@ -6,7 +6,6 @@ Functional chaining in js.
 1. `bower install Hypercubed/_F`
 2. Include the `_F.js` script into your app.  By default should be at `bower_components/_F/_F.js`
 
-
 ## Testing
 
 Install npm and bower dependencies:
@@ -42,7 +41,7 @@ Now imagine the object also has a `year` key whose values are date objects.  We 
 
 ```js
 var _value = function(d) { return d.value; };
-var _year_filter = function(d) { return d.year > new Date('1990 Jan 1'); };
+var _year_filter = function(d) { return d.year >= new Date('1980 Jan 1'); };
 values = data.filter(_year_filter).map(_value);
 ```
 
@@ -50,7 +49,7 @@ However, this has a couple of slight drawbacks.  First of all you will need to c
 
 ```js
 var _year_filter = function(date) {
-  return function(d) { return d.year > date; };
+  return function(d) { return d.year >= date; };
 }
 
 var _filter = _year_filter(new Date('1990 Jan 1'));
@@ -63,22 +62,22 @@ Now what if we want to filter between two dates.  We can do modify our accessor 
 
 ```js
 var _year_filter = function(dateA, dateB) {
-  return function(d) { return d.year > new Date(dateA) && d.year < new Date(dateB); };
+  return function(d) { return d.year >= new Date(dateA) && d.year < new Date(dateB); };
 }
 ```
 
 but let's say that you have multidimensional data where `dateA` and `dataB` change independently.  You might be tempted to do something like this:
- 
+
 ```js
-var _year_gt = function(dateA) {
-  return function(d) { return d.year > dateA; };
+var _year_gte = function(dateA) {
+  return function(d) { return d.year >= dateA; };
 }
 
 var _year_lt = function(dateB) {
   return function(d) { return d.year < dateB; };
 }
 
-_year_filter1 = _year_gt(new Date('1980 Jan 1'));
+_year_filter1 = _year_gte(new Date('1980 Jan 1'));
 _year_filter2 = _year_lt(new Date('1990 Jan 1'));
 
 values = data
@@ -102,21 +101,21 @@ Interesting.  How about this:
 
 ```js
 var _value = _F('value');
-var _year_filter = _F('year').gt(new Date('1990 Jan 1'));
+var _year_filter = _F('year').gte(new Date('1980 Jan 1'));
 values = data.filter(_year_filter).map(_value);
 ```
 
-`_F('year').gt(value)`  is essentially a shortcut for `function(d) { return d.year > value; }`.
+`_F('year').gte(somevalue)`  is essentially a shortcut for `function(d) { return d.year >= somevalue; }`.
 
 It gets better:
 
 ```js
 var _value = _F('value');
 
-var _year_filter = 
+var _year_filter =
   _F('year')
-    .gt(new Date('1990 Jan 1'))
-    .and.lt(new Date('1990 Jan 1'));
+    .gte(new Date('1980 Jan 1'))
+    .and().lt(new Date('1990 Jan 1'));
 
 values = data.filter(_year_filter).map(_value);
 ```
@@ -128,10 +127,10 @@ var _value = _F('value');
 var _value_filter = _value.gt(10);
 
 var _year = _F('year');
-var _year_filter = 
+var _year_filter =
   _year
-    .gt(new Date('1980 Jan 1'))
-    .and.lt(new Date('1990 Jan 1'));
+    .gte(new Date('1980 Jan 1'))
+    .and().lt(new Date('1990 Jan 1'));
 
 var _filter = _value_filter.and(_year_filter);
 

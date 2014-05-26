@@ -99,24 +99,35 @@
 
   // Wraps chain functions (and, or, not) and adds to prototype
   Object.keys(_proto_chains).forEach(function(o) {
-    //var _wrapped = _wrap_chain(_proto_chains[o]);
+    var _wrapped = _wrap_chain(_proto_chains[o]);
 
-    //_proto[o] = function(g) {
-    //  if (arguments.length < 1) {
-    //    return extend({}, _proto[o]);
-    //  }
-    //  return _wrapped.call(this,g);
-    //}
+    _proto[o] = function(g) {
+      var self = this;
 
-    _proto[o] = _wrap_chain(_proto_chains[o]);
+      if (arguments.length < 1) {
+        var f = {};
+
+        Object.keys(_proto_ops).forEach(function(k) {
+          f[k] = (function() {
+            var _c = self[k].apply(this, arguments);
+            return self[o].call(self, _c);
+          });
+        });
+
+        return f;
+      }
+      return _wrapped.call(this,g);
+    }
+
+    //_proto[o] = _wrap_chain(_proto_chains[o]);
 
     // Wraps operators on chain functions (eq, lt, gt) and adds to prototype
-    Object.keys(_proto_ops).forEach(function(k) {
-      _proto[o][k] = function(v) {
-        var val = _proto[k].call(this, v);
-        return _proto[o](val);
-      };
-    });
+    //Object.keys(_proto_ops).forEach(function(k) {
+    //  _proto[o][k] = function(v) {
+    //    var _c = _wrap_op(_proto_ops[k])(v);
+    //    return _wrapped(_c);
+    //  };
+    //});
 
   });
 
