@@ -7,13 +7,61 @@
 // Functional chaining in js.
 
 ;(function() {
+  'use strict';
+
+
+  // (private) For each key in an object
+  function each(object, fn) {
+    Object.keys(object).forEach(function(key) {
+      fn(object[key], key)
+    });
+  }
 
   // (private) Copies from one object to another
   function extend(dest, src) {
-    Object.keys(src).forEach(function(key) {
-      dest[key] = src[key];
+    each(src, function(value, key) {
+      dest[key] = value;
     });
     return dest;
+  }
+
+  function identity(d) {
+    return d;
+  }
+
+  function apply(f) {
+    return function() { return f.apply(this, arguments); }
+  }
+
+  function partial(func) {
+    var boundArgs = Array.prototype.slice.call(arguments, 1);
+    return function() {
+      var position = 0;
+      var args = boundArgs.slice();
+      while (position < arguments.length) args.push(arguments[position++]);
+      return func.apply(this, args);
+    };
+  };
+
+  // (private) constructs a accessor function based on a key
+  function prop(key) {
+    if (!key || key === undefined) return identity;
+    if (typeof key === 'function') return apply(key);
+    if (key === '$index') return function(d, i) { return i; };
+    if (key === '$this') return function() { return this; };
+    if (!key.match(/\./)) return function(d) { return (d == null) ? undefined : d[key]; };
+
+    var chain = key.split('.');
+    var f = prop(chain.shift())
+    var g = prop(chain.join('.'));
+    return compose ( g, f );
+  }
+
+  // (private)
+  function compose ( g, f ){ 
+    return function ( d, i, j ){ 
+      return g.call(this, f.apply(this, arguments), i, d)
+    }
   }
 
   // Prototype of _F functions
@@ -75,96 +123,77 @@
       return f(this, _c);
   } */
 
-  var _wrap_op = function(_fn) {
+
+  //function apply(f) {
+  //  return function() { return f.apply(this, arguments); }
+  //}
+
+  _proto.factory = function(g) {
+    return factory(this.accessor, g);
+  }
+
+  _proto._factory = function(g) {
+    if (g.hasOwnProperty('accessor') && g.accessor === undefined) {
+      return this.factory(g);
+    }
+    return g;
+  }
+
+  _proto.compose = partial(compose, _proto.factory);
+
+  _proto.partial = function() {
+    var _fn = partial.apply(this,arguments);
+    return partial(_fn, this);
+  }
+
+  _proto.wrap = function() {
+    var _g = compose(this.partial.apply(this,arguments), this._factory);
+    return this.compose(_g);
+  }
+
+  _proto.chain = function(fn) {
     return function() {
-      var fn = _fn.apply(this, arguments);
-      return factory(this.accessor, fn);
-    }
-  }
-
-  var _wrap_chain = function(_fn) {
-    return function(g) {
-      if (g.hasOwnProperty('accessor') && g.accessor === undefined) {
-        g = factory(this.accessor, g);
-      }
-      var fn = _fn.call(this, this, g);
-      return factory(this.accessor, fn);
-    }
-  }
-
-  // Wraps operators in factor generator
-  Object.keys(_proto_ops).forEach(function(k) {
-    _proto[k] = _wrap_op(_proto_ops[k]);
-  });
-
-  // Wraps chain functions (and, or, not) and adds to prototype
-  Object.keys(_proto_chains).forEach(function(o) {
-    var _wrapped = _wrap_chain(_proto_chains[o]);
-
-    _proto[o] = function(g) {
       var self = this;
+      var _fn = this.wrap(fn);
 
       if (arguments.length < 1) {
         var f = {};
 
-        Object.keys(_proto_ops).forEach(function(k) {
-          f[k] = (function() {
-            var _c = self[k].apply(this, arguments);
-            return self[o].call(self, _c);
-          });
+        each(_proto_ops, function(op,k) {
+          f[k] = compose(_fn, self[k]).bind(self);
         });
 
         return f;
       }
-      return _wrapped.call(this,g);
+
+      return _fn.apply(this,arguments);
     }
+  }
 
-    //_proto[o] = _wrap_chain(_proto_chains[o]);
-
-    // Wraps operators on chain functions (eq, lt, gt) and adds to prototype
-    //Object.keys(_proto_ops).forEach(function(k) {
-    //  _proto[o][k] = function(v) {
-    //    var _c = _wrap_op(_proto_ops[k])(v);
-    //    return _wrapped(_c);
-    //  };
-    //});
-
+  // Wraps operators in factor generator
+  each(_proto_ops, function(v,k) {
+    _proto[k] = compose(_proto.factory, v);
   });
 
+  // Wraps chain functions (and, or, not) and adds to prototype
+  each(_proto_chains, function(v,o) {
+    _proto[o] = _proto.chain(_proto_chains[o]);
+  }); 
+
   // _F factory
+  // -----
+  // This is the exposed function factory
   function factory(key, ret) { // Factory
 
-    var _accessor = key,
+    var _accessor = prop(key),
         _fn;
 
-    if (!key || key === undefined) _accessor = function(d) { return d; };
-    if (key === '$index') _accessor = function(d, i) { return i; };
-    if (key === '$this') _accessor = function(d, i) { return this; };
-    if (typeof _accessor !== 'function') _accessor = function(d) { return d[key]; };
-
     // Create base function object
-    if (typeof ret === 'function') {
-      _fn = function(d, i, j) {
-        return ret.call(this, _accessor.apply(this, arguments), i, d);
-      };
-    } else {
-      _fn = _accessor;
-    }
-
+    _fn = (typeof ret === 'function') ? compose(ret, _accessor) : _accessor;
     _fn.key = key;
     _fn.accessor = (key) ? _accessor : undefined;
 
     extend(_fn, _proto);
-
-    // Wraps chained operators.... this is bad!!!
-    //Object.keys(_proto_chains).forEach(function(o) {
-    //  Object.keys(_proto_ops).forEach(function(k) {
-    //    _fn[o][k] = (function(v) {
-    //      var _c = _proto[k].apply(this, arguments)
-    //      return _proto[o].call(this, _c);
-    //    }).bind(_fn);
-    //  });
-    //});
 
     return _fn;
   }

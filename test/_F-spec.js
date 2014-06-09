@@ -141,6 +141,31 @@
 
         expect(F).to.have.property('key', '$this');
       });
+
+      it('should work with nested data', function() {
+        var data = { 'date': { 'year': 1990 } };
+        var F = _F('date', _F('year'));
+        expect(F(data)).to.equal(data.date.year);
+      });
+
+      it('should work with nested data, with chained keys', function() {
+        var data = { 'date': { 'year': 1990 } };
+        expect(_F('date.year')(data)).to.equal(data.date.year);
+      });
+
+      it('should work with nested data, with chained keys and identity', function() {
+        var data = { 'date': { 'year': { 'value': 1990 } } };
+        expect(_F('date.')(data)).to.equal(data.date);
+        expect(_F('date.year.')(data)).to.deep.equal(data.date.year);
+      });
+
+      it('should return undefined with missing key', function() {
+        var data = { 'date': { 'year': 1990 } };
+        expect(_F('year')(data)).to.be.undefined;
+        expect(_F('date.day')(data)).to.be.undefined;
+        expect(_F('year.day')(data)).to.be.undefined;
+        expect(_F('date.year.value')(data)).to.be.undefined;
+      });
     });
 
     describe('#eq', function() {
@@ -606,6 +631,7 @@
       F1.not().lt(1880);
       expect(data.filter(F1.lt(1980))).to.have.length(A);
     });
+
 
     xit('filter and map thing', function() {
       var F = _F('year').gt(1980).and(_F('value'));
