@@ -137,7 +137,7 @@
     var _accessor = key,
         _fn;
 
-    if (!key || key === undefined) _accessor = function(d) { return d; };
+    if ((key !== 0 && !key) || key === undefined) _accessor = function(d) { return d; };
     if (key === '$index') _accessor = function(d, i) { return i; };
     if (key === '$this') _accessor = function(d, i) { return this; };
     if (typeof _accessor !== 'function') _accessor = function(d) { return d[key]; };
