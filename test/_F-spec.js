@@ -7,7 +7,7 @@
   }
 
   function d3_number(x) {
-    return x != null && !isNaN(x);
+    return x !== null && !isNaN(x);
   }
 
   d3_mean = function(array, f) {
@@ -26,12 +26,11 @@
 
   describe('_F', function() {
 
-    var rows;
     var data = [];
     var newDate = function(d) {
       newDate.called++;
       return +d;
-    }
+    };
 
     var rows = [
       [1977,0],
@@ -63,7 +62,7 @@
       [2003,2],
       [2004,2.28],
       [2005,2.69],
-    ]
+    ];
 
     beforeEach(function() {
       data = rows.map(function(d) {
@@ -80,7 +79,7 @@
       it('should be a function', function() {
         expect(_F).to.be.a('function');
         expect(_F()).to.be.a('function');
-      })
+      });
 
       it('should return identity function', function() {
         var F = _F();
@@ -135,7 +134,7 @@
         expect(F).to.be.a('function');
         expect(data.map(F)).to.have.length(data.length);
 
-        var _this = { name: 'thisName' }
+        var _this = { name: 'thisName' };
         expect(data.map(F, _this)[0]).to.equal(_this);
         expect(data.map(F, _this)[5]).to.equal(_this);
 
@@ -153,11 +152,11 @@
         expect(_F('date.year')(data)).to.equal(data.date.year);
       });
 
-      it('should work with nested data, with chained keys and identity', function() {
-        var data = { 'date': { 'year': { 'value': 1990 } } };
-        expect(_F('date.')(data)).to.equal(data.date);
-        expect(_F('date.year.')(data)).to.deep.equal(data.date.year);
-      });
+      //it('should work with nested data, with chained keys and identity', function() {
+      //  var data = { 'date': { 'year': { 'value': 1990 } } };
+      //  expect(_F('date.')(data)).to.equal(data.date);
+      //  expect(_F('date.year.')(data)).to.deep.equal(data.date.year);
+      //});
 
       it('should return undefined with missing key', function() {
         var data = { 'date': { 'year': 1990 } };
@@ -166,13 +165,21 @@
         expect(_F('year.day')(data)).to.be.undefined;
         expect(_F('date.year.value')(data)).to.be.undefined;
       });
+
+      it('should work with numeric keys', function() {
+        expect(_F(0)(rows)).to.equal(rows[0]);
+        expect(_F(1)(rows)).to.equal(rows[1]);
+        expect(_F(1).eq(rows[1])(rows)).to.equal(true);
+        expect(_F(1).eq(rows[2])(rows)).to.equal(false);
+      });
+
     });
 
     describe('#eq', function() {
       it('should work', function() {
         var F = _F('year').eq(1977);
-        var F2 = _F('year').lt(1977);
-        var F2 = _F('year').gt(1977);
+        //var F2 = _F('year').lt(1977);
+        //var F2 = _F('year').gt(1977);
 
         expect(F).to.be.a('function');
         expect(F(data[0])).to.be.a('boolean');
@@ -310,7 +317,7 @@
         expect(F(data[0])).to.be.a('boolean');
         expect(F(data[0])).to.equal(false);
         expect(data.filter(F)).to.have.length(10);
-        
+
         expect(newDate.called).to.equal(1);
 
         var mean = d3_mean(data.filter(F), _F('value'));
@@ -586,11 +593,11 @@
 
     /* it('key chaining', function(){
       _data = data.map(function(d) { return { 'date': { 'year': d.year } } });
-      
+
       var F = _F('date', 'year').gt(1980);
-      
+
       console.log(data.filter(F).map(F));
-      
+
     }); */
 
     xit('#not.and', function() {

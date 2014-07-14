@@ -9,11 +9,10 @@
 ;(function() {
   'use strict';
 
-
   // (private) For each key in an object
   function each(object, fn) {
     Object.keys(object).forEach(function(key) {
-      fn(object[key], key)
+      fn(object[key], key);
     });
   }
 
@@ -30,7 +29,7 @@
   }
 
   function apply(f) {
-    return function() { return f.apply(this, arguments); }
+    return function() { return f.apply(this, arguments); };
   }
 
   function partial(func) {
@@ -41,27 +40,27 @@
       while (position < arguments.length) args.push(arguments[position++]);
       return func.apply(this, args);
     };
-  };
+  }
 
   // (private) constructs a accessor function based on a key
   function prop(key) {
-    if (!key || key === undefined) return identity;
+    if (key === undefined) return identity;
     if (typeof key === 'function') return apply(key);
     if (key === '$index') return function(d, i) { return i; };
     if (key === '$this') return function() { return this; };
-    if (!key.match(/\./)) return function(d) { return (d == null) ? undefined : d[key]; };
+    if (typeof key === 'number' || !key.match(/\./)) return function(d) { return (d === null || d === undefined) ? undefined : d[key]; };
 
     var chain = key.split('.');
-    var f = prop(chain.shift())
+    var f = prop(chain.shift());
     var g = prop(chain.join('.'));
     return compose ( g, f );
   }
 
   // (private)
-  function compose ( g, f ){ 
-    return function ( d, i, j ){ 
-      return g.call(this, f.apply(this, arguments), i, d)
-    }
+  function compose ( g, f ){
+    return function ( d, i, j ){
+      return g.call(this, f.apply(this, arguments), i, d);
+    };
   }
 
   // Prototype of _F functions
@@ -82,7 +81,7 @@
     },
     lte: function(v) {
       return function(a) {return a <= v;};
-    },    
+    },
     gte: function(v) {
       return function(a) {return a >= v;};
     }//,
@@ -130,26 +129,26 @@
 
   _proto.factory = function(g) {
     return factory(this.accessor, g);
-  }
+  };
 
   _proto._factory = function(g) {
     if (g.hasOwnProperty('accessor') && g.accessor === undefined) {
       return this.factory(g);
     }
     return g;
-  }
+  };
 
   _proto.compose = partial(compose, _proto.factory);
 
   _proto.partial = function() {
     var _fn = partial.apply(this,arguments);
     return partial(_fn, this);
-  }
+  };
 
   _proto.wrap = function() {
     var _g = compose(this.partial.apply(this,arguments), this._factory);
     return this.compose(_g);
-  }
+  };
 
   _proto.chain = function(fn) {
     return function() {
@@ -167,8 +166,8 @@
       }
 
       return _fn.apply(this,arguments);
-    }
-  }
+    };
+  };
 
   // Wraps operators in factor generator
   each(_proto_ops, function(v,k) {
@@ -178,7 +177,7 @@
   // Wraps chain functions (and, or, not) and adds to prototype
   each(_proto_chains, function(v,o) {
     _proto[o] = _proto.chain(_proto_chains[o]);
-  }); 
+  });
 
   // _F factory
   // -----
@@ -223,8 +222,8 @@
         throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
       }
 
-      var aArgs = Array.prototype.slice.call(arguments, 1), 
-          fToBind = this, 
+      var aArgs = Array.prototype.slice.call(arguments, 1),
+          fToBind = this,
           fNOP = function () {},
           fBound = function () {
             return fToBind.apply(this instanceof fNOP && oThis ? this : oThis,
