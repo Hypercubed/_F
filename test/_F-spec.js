@@ -238,7 +238,6 @@
       });
     });
 
-
     describe('#lte', function() {
       it('should work with key', function() {
         var f = _F('year').lte(newDate(1989));
@@ -300,7 +299,6 @@
         expect(data.filter(F)[0]).to.equal(data[10]);
       });
     });
-
 
     describe('#and', function() {
       it('should work with simple accessor function', function() {
@@ -580,6 +578,29 @@
 
         var mean = d3_mean(data.filter(f), _F('value'));
         expect(mean).to.equal(3.845789473684211);
+      });
+
+    });
+
+    function d3_ascending(a, b) {
+      return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
+    }
+
+    function d3_descending(a, b) {
+      return b < a ? -1 : b > a ? 1 : b >= a ? 0 : NaN;
+    }
+
+    describe('#order', function() {
+
+      it('returns a comparator funtion', function() {
+
+        var fn = _F('year').order(d3_ascending);
+
+        expect(fn).to.be.a('function');
+
+        expect( fn(data[0],data[1]) ).to.equal(-1);
+        expect( fn(data[1],data[0]) ).to.equal(1);
+        expect( fn(data[1],data[1]) ).to.equal(0);
       });
 
     });

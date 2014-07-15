@@ -24,14 +24,17 @@
     return dest;
   }
 
+  // (private)
   function identity(d) {
     return d;
   }
 
+  // (private)
   function apply(f) {
     return function() { return f.apply(this, arguments); };
   }
 
+  // (private)
   function partial(func) {
     var boundArgs = Array.prototype.slice.call(arguments, 1);
     return function() {
@@ -63,6 +66,24 @@
     };
   }
 
+  // (private)
+  function curry2(fn) {
+    return function(v) {
+      return function(a) {
+        return fn(a, v);
+      };
+    };
+  }
+
+  // (private)
+  function curry5(fn) {
+    return function(f,g) {
+      return function(a, i, d) {
+        return !!fn.call(this,f, g, a, i, d);
+      };
+    }
+  }
+
   // Prototype of _F functions
   var _proto = {};
 
@@ -70,27 +91,11 @@
   // -----
   // Operators take a value and return a new accessor function
   var _proto_ops = {
-    eq: function(v) {
-      return function(a) {return a == v;};
-    },
-    lt: function(v) {
-      return function(a) {return a < v;};
-    },
-    gt: function(v) {
-      return function(a) {return a > v;};
-    },
-    lte: function(v) {
-      return function(a) {return a <= v;};
-    },
-    gte: function(v) {
-      return function(a) {return a >= v;};
-    }//,
-    //match: function(v) {  // TODO: test
-    //  return factory(this.accessor, function(a) { return a.match(v);});
-    //},
-    //prop: function(v) {  // TODO: test
-    //  return factory(this.accessor, function(a) { return a[v];});
-    //},
+    eq:  function(a,v) { return a == v; },
+    lt:  function(a,v) { return a <  v; },
+    gt:  function(a,v) { return a >  v; },
+    lte: function(a,v) { return a <= v; },
+    gte: function(a,v) { return a >= v; }
   };
 
   // Chaining functions
@@ -98,20 +103,14 @@
   // Chaining functions take a two accessor functions and return a new accessor, returning `true` or `false`
   // The second function will not be call if the first returns false
   var _proto_chains = {
-    and: function(f,g) {
-      return function(a, i, d) {
-        return !!(f.call(this,d,i) && g.call(this,d,i));
-      };
+    and: function(f, g, a, i, d) {
+      return f.call(this,d,i) && g.call(this,d,i);
     },
-    or: function(f,g) {
-      return function(a, i, d) {
-        return !!(f.call(this, d, i) || g.call(this, d, i));
-      };
+    or:  function(f, g, a, i, d) {
+      return f.call(this, d, i) || g.call(this, d, i);
     },
-    not: function(f,g) {
-      return function(a, i, d) {
-        return !g.call(this, d, i);
-      };
+    not: function(f, g, a, i, d) {
+      return !g.call(this, d, i);
     }
   };
 
@@ -145,7 +144,7 @@
     return partial(_fn, this);
   };
 
-  _proto.wrap = function() {
+  _proto.wrap = function(f) {
     var _g = compose(this.partial.apply(this,arguments), this._factory);
     return this.compose(_g);
   };
@@ -169,14 +168,21 @@
     };
   };
 
+  _proto.order = function(comparator) {
+    var self = this;
+    return function(a,b) {
+      return comparator(self(a),self(b));
+    };
+  };
+
   // Wraps operators in factor generator
   each(_proto_ops, function(v,k) {
-    _proto[k] = compose(_proto.factory, v);
+    _proto[k] = compose(_proto.factory, curry2(v));
   });
 
   // Wraps chain functions (and, or, not) and adds to prototype
   each(_proto_chains, function(v,o) {
-    _proto[o] = _proto.chain(_proto_chains[o]);
+    _proto[o] = _proto.chain(curry5(v));
   });
 
   // _F factory
