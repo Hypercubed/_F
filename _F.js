@@ -44,11 +44,11 @@
 
   // (private) constructs a accessor function based on a key
   function prop(key) {
-    if (key === undefined) return identity;
+    if (key === undefined || key === null) return identity;
     if (typeof key === 'function') return apply(key);
     if (key === '$index') return function(d, i) { return i; };
     if (key === '$this') return function() { return this; };
-    if (typeof key === 'number' || !key.match(/\./)) return function(d) { return (d === null || d === undefined) ? undefined : d[key]; };
+    if (typeof key === 'number' || !key.match(/\./)) {return function(d) { return (d === null || d === undefined) ? undefined : d[key]; };}
 
     var chain = key.split('.');
     var f = prop(chain.shift());
