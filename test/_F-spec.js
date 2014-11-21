@@ -617,6 +617,24 @@
         expect(mean).to.equal((43.7+11.31)/2);
       });
 
+      it('should work with strings', function() {
+
+        var f = _F().in('**yes**');
+        expect(f).to.be.a('function');
+        expect(f('no')).to.be.a('boolean');
+        expect(f('no')).to.equal(false);
+        expect(f('yes')).to.equal(true);
+
+        f = _F().in('true');
+        expect(f(false)).to.equal(false);
+        expect(f(true)).to.equal(true);
+
+        f = _F().in(61234);
+        expect(f(124)).to.equal(false);
+        expect(f(123)).to.equal(true);
+
+      });
+
       it('should work if value is not an array', function() {
         var f = _F('year').in(1980);
         expect(f).to.be.a('function');
@@ -629,7 +647,7 @@
       });
     });
 
-    describe('#contains', function() {
+    describe('#has', function() {
       it('should work with simple accessor function', function() {
 
         var testData = {
@@ -637,7 +655,7 @@
           values: data.map(_F('value'))
         }
 
-        var f = _F('years').contains(1980);
+        var f = _F('years').has(1980);
         expect(f).to.be.a('function');
         expect(f(testData)).to.be.a('boolean');
         expect(f(testData)).to.equal(true);
@@ -651,26 +669,47 @@
           values: data.map(_F('value'))
         }
 
-        var f = _F('years').contains(1960);
+        var f = _F('years').has(1960);
         expect(f).to.be.a('function');
         expect(f(testData)).to.be.a('boolean');
         expect(f(testData)).to.equal(false);
 
       });
 
-      it('should return if not an array', function() {
+      it('should work with strings', function() {
 
-        var testData = {
-          years: undefined,
-          values: data.map(_F('value'))
-        }
-
-        var f = _F('years').contains(1880);
+        var f = _F().has('yes');
         expect(f).to.be.a('function');
-        expect(f(testData)).to.be.a('boolean');
-        expect(f(testData)).to.equal(false);
+        expect(f('**no**')).to.be.a('boolean');
+        expect(f('**no**')).to.equal(false);
+        expect(f('**yes**')).to.equal(true);
+
+        f = _F().has('true');
+        expect(f(false)).to.equal(false);
+        expect(f(true)).to.equal(true);
+
+        f = _F().has('23');
+        expect(f(61244)).to.equal(false);
+        expect(f(61234)).to.equal(true);
 
       });
+
+      it('should check as a string if not array', function() {
+
+        var f = _F('year').has(198);
+        expect(f).to.be.a('function');
+        expect(f(data[0])).to.be.a('boolean');
+        expect(f(data[0])).to.equal(false);
+        expect(f(data[3])).to.equal(true);
+
+        var mean = d3_mean(data.filter(f), _F('value'));
+        expect(mean).to.equal(20.986);
+
+      });
+
+    });
+
+    xit('#set', function() {
     });
 
     xit('#gt chaining', function() {
