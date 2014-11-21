@@ -11,10 +11,27 @@ Functional chaining in js.
 Install npm and bower dependencies:
 
 ```bash
-	npm install
-	bower install
-	npm test
+npm install
+bower install
+npm test
 ```
+
+## Summary of API
+
+Hypercubed/_F is simply global shortcut for composable "d3 style" accessors functions. For example:
+
+| _F                               | Pure JS equivalent                                        |
+| -------------------------------- | --------------------------------------------------------- |
+| `_F('prop')`                     | `function(d) { return d.prop; }`                          |
+| `_F('prop.prop')`                | `function(d) { return d.prop.prop; }`                     |
+| `_F('prop').eq(10)`              | `function(d) { return d.prop == 10; }`                    |
+| `_F('prop').gt(10)`              | `function(d) { return d.prop > 10; }`                     |
+| `_F('prop').lt(10)`              | `function(d) { return d.prop < 10; }`                     |
+| `_F('prop').gte(10)`             | `function(d) { return d.prop >= 10; }`                    |
+| `_F('prop').lte(10)`             | `function(d) { return d.prop <= 10; }`                    |
+| `_F('prop').gt(10).and().lt(20)` | `function(d) { return (d.prop > 10) &&  (d.prop < 20); }` |
+| `_F('prop').lt(10).or().gt(20)`  | `function(d) { return (d.prop < 10) ||  (d.prop > 20); }` |
+| `_F('prop').gt(10).not().gt(20)` | `function(d) { return (d.prop > 10) && !(d.prop > 20); }` |
 
 ## Why?
 
@@ -95,7 +112,7 @@ var _value = _F('value');
 values = data.map(_value);
 ```
 
-The return value from `_F()` in this case is simply the accessor function `function(d) { return d.value; }`.
+The value returned from `_F()` in this case is simply the accessor function `function(d) { return d.value; }`.
 
 Interesting.  How about this:
 
