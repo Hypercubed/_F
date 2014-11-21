@@ -93,6 +93,7 @@
   // Operators take a value and return a new accessor function
   var _proto_ops = {
     eq:   function(a,v) { return a  == v; },
+    is:   function(a,v) { return a === v; },
     neq:  function(a,v) { return a !== v; },
     lt:   function(a,v) { return a  <  v; },
     gt:   function(a,v) { return a  >  v; },

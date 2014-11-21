@@ -216,6 +216,23 @@
       });
     });
 
+    describe('#is', function() {
+      it('should work', function() {
+
+        var a = [1,2];
+        var b = [1,2];
+
+        var f = _F().is(a);
+
+        expect(f).to.be.a('function');
+        expect(f(a)).to.be.a('boolean');
+        expect(f(a)).to.equal(true);
+        expect(f(b)).to.equal(false);
+
+      });
+
+    });
+
     describe('#lt', function() {
       it('should work with key', function() {
         var f = _F('year').lt(newDate(1990));
