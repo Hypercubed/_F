@@ -592,7 +592,7 @@
 
     describe('#order', function() {
 
-      it('returns a comparator funtion', function() {
+      it('returns a comparator function', function() {
 
         var fn = _F('year').order(d3_ascending);
 
@@ -603,6 +603,74 @@
         expect( fn(data[1],data[1]) ).to.equal(0);
       });
 
+    });
+
+    describe('#in', function() {
+      it('should work with simple accessor function', function() {
+        var f = _F('year').in([1980, 1985]);
+        expect(f).to.be.a('function');
+        expect(f(data[0])).to.be.a('boolean');
+        expect(f(data[0])).to.equal(false);
+        expect(f(data[3])).to.equal(true);
+        expect(data.filter(f)).to.have.length(2);
+        var mean = d3_mean(data.filter(f), _F('value'));
+        expect(mean).to.equal((43.7+11.31)/2);
+      });
+
+      it('should work if value is not an array', function() {
+        var f = _F('year').in(1980);
+        expect(f).to.be.a('function');
+        expect(f(data[0])).to.be.a('boolean');
+        expect(f(data[0])).to.equal(false);
+        expect(f(data[3])).to.equal(true);
+        expect(data.filter(f)).to.have.length(1);
+        var mean = d3_mean(data.filter(f), _F('value'));
+        expect(mean).to.equal(43.7);
+      });
+    });
+
+    describe('#contains', function() {
+      it('should work with simple accessor function', function() {
+
+        var testData = {
+          years: data.map(_F('year')),
+          values: data.map(_F('value'))
+        }
+
+        var f = _F('years').contains(1980);
+        expect(f).to.be.a('function');
+        expect(f(testData)).to.be.a('boolean');
+        expect(f(testData)).to.equal(true);
+
+      });
+
+      it('should return false', function() {
+
+        var testData = {
+          years: data.map(_F('year')),
+          values: data.map(_F('value'))
+        }
+
+        var f = _F('years').contains(1960);
+        expect(f).to.be.a('function');
+        expect(f(testData)).to.be.a('boolean');
+        expect(f(testData)).to.equal(false);
+
+      });
+
+      it('should return if not an array', function() {
+
+        var testData = {
+          years: undefined,
+          values: data.map(_F('value'))
+        }
+
+        var f = _F('years').contains(1880);
+        expect(f).to.be.a('function');
+        expect(f(testData)).to.be.a('boolean');
+        expect(f(testData)).to.equal(false);
+
+      });
     });
 
     xit('#gt chaining', function() {

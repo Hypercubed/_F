@@ -51,6 +51,7 @@
     if (typeof key === 'function') return apply(key);
     if (key === '$index') return function(d, i) { return i; };
     if (key === '$this') return function() { return this; };
+    //if (typeof key === 'string' && key.match(/^\$\d+$/)) { key = parseInt(key.replace('$')); };
     if (typeof key === 'number' || !key.match(/\./)) {return function(d) { return (d === null || d === undefined) ? undefined : d[key]; };}
 
     var chain = key.split('.');
@@ -91,11 +92,14 @@
   // -----
   // Operators take a value and return a new accessor function
   var _proto_ops = {
-    eq:  function(a,v) { return a == v; },
-    lt:  function(a,v) { return a <  v; },
-    gt:  function(a,v) { return a >  v; },
-    lte: function(a,v) { return a <= v; },
-    gte: function(a,v) { return a >= v; }
+    eq:  function(a,v) { return a  == v; },
+    neq: function(a,v) { return a !== v; },
+    lt:  function(a,v) { return a  <  v; },
+    gt:  function(a,v) { return a  >  v; },
+    lte: function(a,v) { return a  <= v; },
+    gte: function(a,v) { return a  >= v; },
+    in:  function(a,v) { return (Array.isArray(v)) ? v.indexOf(a) > -1 : v === a; },
+    contains:  function(a,v) { return (Array.isArray(a)) ? a.indexOf(v) > -1 : false; }
   };
 
   // Chaining functions
