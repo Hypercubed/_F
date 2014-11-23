@@ -30,6 +30,16 @@
   }
 
   // (private)
+  function ascending(a, b) {
+    return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
+  }
+
+  // (private)
+  function descending(a, b) {
+    return b < a ? -1 : b > a ? 1 : b >= a ? 0 : NaN;
+  }
+
+  // (private)
   function apply(f) {
     return function() { return f.apply(this, arguments); };
   }
@@ -174,9 +184,18 @@
 
   _proto.order = function(comparator) {
     var self = this;
+
+    if (arguments.length < 1) {
+      return {
+        asc: _proto.order.call(self, ascending),
+        desc: _proto.order.call(self, descending),
+      };
+    }
+
     return function(a,b) {
       return comparator(self(a),self(b));
     };
+
   };
 
   // Wraps operators in factor generator

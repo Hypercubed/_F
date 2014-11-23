@@ -603,6 +603,43 @@
         expect( fn(data[1],data[1]) ).to.equal(0);
       });
 
+      it('returns a ascending function', function() {
+
+        var fn = _F('year').order().asc;
+
+        expect(fn).to.be.a('function');
+
+        expect( fn(data[0],data[1]) ).to.equal(-1);
+        expect( fn(data[1],data[0]) ).to.equal(1);
+        expect( fn(data[1],data[1]) ).to.equal(0);
+      });
+
+      it('returns a descending function', function() {
+
+        var fn = _F('year').order().desc;
+
+        expect(fn).to.be.a('function');
+
+        expect( fn(data[0],data[1]) ).to.equal(1);
+        expect( fn(data[1],data[0]) ).to.equal(-1);
+        expect( fn(data[1],data[1]) ).to.equal(0);
+      });
+
+    });
+
+    describe('#order asc', function() {
+
+      it('returns a comparator function', function() {
+
+        var fn = _F('year').order().asc;
+
+        //expect(fn).to.be.a('function');
+
+        expect( fn(data[0],data[1]) ).to.equal(-1);
+        expect( fn(data[1],data[0]) ).to.equal(1);
+        expect( fn(data[1],data[1]) ).to.equal(0);
+      });
+
     });
 
     describe('#in', function() {
