@@ -317,6 +317,29 @@
       });
     });
 
+    describe('#test', function() {
+      it('should work with regex', function() {
+        var f = _F('year').test(/19[89]./);
+
+        expect(f).to.be.a('function');
+        expect(f(data[0])).to.be.a('boolean');
+        expect(f(data[0])).to.equal(false);
+        expect(data.filter(f)).to.have.length(20);  // TODO: check
+        //expect(newRegExp.called).to.equal(1);
+      });
+
+      it('should work with string', function() {
+        var f = _F('year').test('19[89].');
+
+        expect(f).to.be.a('function');
+        expect(f(data[0])).to.be.a('boolean');
+        expect(f(data[0])).to.equal(false);
+        expect(data.filter(f)).to.have.length(20);  // TODO: check
+        //expect(newRegExp.called).to.equal(1);
+      });
+
+    });
+
     describe('#and', function() {
       it('should work with simple accessor function', function() {
         var F1 = _F('value').gt(0);
@@ -614,6 +637,43 @@
         var fn = _F('year').order(d3_ascending);
 
         expect(fn).to.be.a('function');
+
+        expect( fn(data[0],data[1]) ).to.equal(-1);
+        expect( fn(data[1],data[0]) ).to.equal(1);
+        expect( fn(data[1],data[1]) ).to.equal(0);
+      });
+
+      it('returns a ascending function', function() {
+
+        var fn = _F('year').order().asc;
+
+        expect(fn).to.be.a('function');
+
+        expect( fn(data[0],data[1]) ).to.equal(-1);
+        expect( fn(data[1],data[0]) ).to.equal(1);
+        expect( fn(data[1],data[1]) ).to.equal(0);
+      });
+
+      it('returns a descending function', function() {
+
+        var fn = _F('year').order().desc;
+
+        expect(fn).to.be.a('function');
+
+        expect( fn(data[0],data[1]) ).to.equal(1);
+        expect( fn(data[1],data[0]) ).to.equal(-1);
+        expect( fn(data[1],data[1]) ).to.equal(0);
+      });
+
+    });
+
+    describe('#order asc', function() {
+
+      it('returns a comparator function', function() {
+
+        var fn = _F('year').order().asc;
+
+        //expect(fn).to.be.a('function');
 
         expect( fn(data[0],data[1]) ).to.equal(-1);
         expect( fn(data[1],data[0]) ).to.equal(1);

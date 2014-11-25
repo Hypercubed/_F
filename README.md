@@ -11,14 +11,57 @@ Functional chaining in js.
 Install npm and bower dependencies:
 
 ```bash
-	npm install
-	bower install
-	npm test
+npm install
+bower install
+npm test
 ```
+
+## Summary of API
+
+Hypercubed/_F is simply global shortcut for composable "d3 style" data accessors functions. For example:
+
+### Accessors
+
+| _F                      | Pure JS equivalent                             |
+| ----------------------- | ---------------------------------------------- |
+| `_F()`                  | `function(d)    { return d; }`                 |
+| `_F('prop')`            | `function(d)    { return d.prop; }`            |
+| `_F('prop.prop')`       | `function(d)    { return d.prop.prop; }`       |
+| `_F('prop.prop.prop')`  | `function(d)    { return d.prop.prop.prop; }`  |
+| `_F(number)`            | `function(d)    { return d[number]; }`         |
+| `_F('$index')`          | `function(d, i) { return i; }`                 |
+| `_F('$this')`           | `function()     { return this; }`              |
+
+### Operators
+
+| _F                      | Pure JS equivalent                                    |
+| ----------------------- | ----------------------------------------------------- |
+| `_F('prop').eq(value)`  | `function(d) { return  d.prop  == value; }`           |
+| `_F('prop').neq(value)` | `function(d) { return  d.prop !== value; }`           |
+| `_F('prop').gt(value)`  | `function(d) { return  d.prop >   value; }`           |
+| `_F('prop').lt(value)`  | `function(d) { return  d.prop <   value; }`           |
+| `_F('prop').gte(value)` | `function(d) { return  d.prop >=  value; }`           |
+| `_F('prop').lte(value)` | `function(d) { return  d.prop <=  value; }`           |
+| `_F('prop').in(array)`  | `function(d) { return  array.indexOf(d)      > -1; }` |
+| `_F('prop').has(value)` | `function(d) { return  d.prop.indexOf(value) > -1; }` |
+
+### Chaining
+
+| _F                                      | Pure JS equivalent                                    |
+| --------------------------------------- | ----------------------------------------------------- |
+| `_F('prop').gt(value).and().lt(valueB)` | `function(d) { return (d.prop > value) &&  (d.prop < valueB); }` |
+| `_F('prop').lt(value).or().gt(valueB)`  | `function(d) { return (d.prop < value) ||  (d.prop > valueB); }` |
+| `_F('prop').gt(value).not().gt(valueB)` | `function(d) { return (d.prop > value) && !(d.prop > valueB); }` |
+
+### Sorting
+
+| _F                     | Pure JS equivalent                            |
+| ---------------------- | --------------------------------------------- |
+| `_F('prop').order(fn)` | `function(a,b) { return fn(a.prop,b.prop); }` |
 
 ## Why?
 
-In javascript, especially when using d3, we often write accessor functions like this:
+In JavaScript, especially when using d3, we often write accessor functions like this:
 
 ```js
 function(d) { return d.value; }
@@ -95,7 +138,7 @@ var _value = _F('value');
 values = data.map(_value);
 ```
 
-The return value from `_F()` in this case is simply the accessor function `function(d) { return d.value; }`.
+The value returned from `_F()` in this case is simply the accessor function `function(d) { return d.value; }`.
 
 Interesting.  How about this:
 
