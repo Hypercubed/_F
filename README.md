@@ -36,8 +36,6 @@ _Example_
 ```js
 var data = [ { firstname: 'John', lastname: 'Smith', age: 51 }, /* ... */ ];
 var _firstname = _F('firstname');
-var _lastname = _F('firstname');
-var _age = _F('age');
 
 data.map(_firstname);  // Returns a list of first names
 ```
@@ -75,6 +73,7 @@ data.filter(_johns);  // returns a list of John's
 
 _Example_
 ```js
+var _age = _F('age');
 var _twenties = _age.gte(20).and().lt(30);
 
 data.filter(_johns.and(_twenties));  // returns a list of John's in their twenties
@@ -90,7 +89,7 @@ data.filter(_johns.and(_twenties));  // returns a list of John's in their twenti
 
 _Example_
 ```js
-data.filter(_johns.and(_twenties)).sort(_age.order().asc);  // returns a list of John's in their twenties sorted by age
+data.filter(_johns.and(_twenties)).sort(_age.order().asc);  // returns a list of John's in their twenties sorted by age in ascending order
 ```
 
 ## Why?

@@ -108,7 +108,7 @@
     gt:    function(a,v) { return a  >  v; },
     lte:   function(a,v) { return a  <= v; },
     gte:   function(a,v) { return a  >= v; },
-    test:  function(a,v) { return (v instanceof RegExp) ? v.test(a) : (new RegExp(v)).test(a); },
+    match: function(a,v) { return (v instanceof RegExp) ? v.test(String(a)) : (new RegExp(v)).test(String(a)); },
     in:    function(a,v) { return (Array.isArray(v)) ? v.indexOf(a) > -1 : String(v).indexOf(String(a)) > -1; },
     has:   function(a,v) { return (Array.isArray(a)) ? a.indexOf(v) > -1 : String(a).indexOf(String(v)) > -1; }
   };
@@ -116,7 +116,7 @@
   // Chaining functions
   // -----
   // Chaining functions take a two accessor functions and return a new accessor, returning `true` or `false`
-  // The second function will not be call if the first returns false
+  // The second function will not be called if the first returns false
   var _proto_chains = {
     and: function(f, g, a, i, d) {
       return f.call(this,d,i) && g.call(this,d,i);
