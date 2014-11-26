@@ -1,4 +1,4 @@
-# _F
+# `_F`
 
 Functional chaining in js.
 
@@ -62,14 +62,14 @@ data.filter(_johns);  // returns a list of John's
 
 ### Chaining
 
-| _F                                        | Pure JS equivalent                                               |
-| ----------------------------------------- | ---------------------------------------------------------------- |
-| `_F('prop').gt(value).and(fn)`            | `function(d) { return (d.prop > value) &&  fn(d); }`             |
-| `_F('prop').gt(value).or(fn)`             | `function(d) { return (d.prop > value) ||  fn(d); }`             |
-| `_F('prop').gt(value).not(fn)`            | `function(d) { return (d.prop > value) &&  !fn(d); }`            |
-| `_F('prop').gt(value).and().lt(valueB)`   | `function(d) { return (d.prop > value) &&  (d.prop < valueB); }` |
-| `_F('prop').lt(value).or().gt(valueB)`    | `function(d) { return (d.prop < value) ||  (d.prop > valueB); }` |
-| `_F('prop').gt(value).not().gt(valueB)`   | `function(d) { return (d.prop > value) && !(d.prop > valueB); }` |
+| _F                                        | Pure JS equivalent                                                |
+| ----------------------------------------- | ----------------------------------------------------------------- |
+| `_F('prop').gt(value).and(fn)`            | `function(d) { return (d.prop > value) &&  fn(d); }`              |
+| `_F('prop').gt(value).or(fn)`             | `function(d) { return (d.prop > value) ||  fn(d); }`              |
+| `_F('prop').gt(value).not(fn)`            | `function(d) { return (d.prop > value) &&  !fn(d); }`             |
+| `_F('prop').gt(value).and().lt(valueB)`   | `function(d) { return (d.prop > value) &&  (d.prop < valueB); }`  |
+| `_F('prop').lt(value).or().gt(valueB)`    | `function(d) { return (d.prop < value) ||  (d.prop > valueB); }`  |
+| `_F('prop').gt(value).not().eq(valueB)`   | `function(d) { return (d.prop > value) && !(d.prop == valueB); }` |
 
 _Example_
 ```js

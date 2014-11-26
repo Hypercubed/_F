@@ -6,7 +6,8 @@ module.exports = function(grunt){
 
     jshint: {
       options: { jshintrc: true },
-      all: ['gruntfile.js', '<%= pkg.name %>.js']
+      all: ['gruntfile.js', '<%= pkg.name %>.js'],
+      src: ['<%= pkg.name %>.js']
     },
 
     bump: {
@@ -22,7 +23,7 @@ module.exports = function(grunt){
 
     uglify: {
       options: {
-        banner: [ 
+        banner: [
           '/*',
           ' * <%= pkg.title || pkg.name %> <%= pkg.version %> - <%= pkg.description %>',
           ' * Copyright  (c) <%= grunt.template.today("yyyy") %> <%= pkg.authors.join(" ") %> (<%= pkg.license %> Licensed)',
@@ -71,19 +72,19 @@ module.exports = function(grunt){
     //}
 
     watch: {
-      fast: {
+      mocha: {
         options: {
           spawn: true,
         },
         files: '**/*.js',
-        tasks: ['test']
+        tasks: ['jshint', 'test:mocha']
       },
-      all: {
+      karma: {
         options: {
           spawn: true,
         },
         files: '**/*.js',
-        tasks: ['test:all']
+        tasks: ['jshint', 'test:karma']
       }
     }
 
@@ -91,14 +92,12 @@ module.exports = function(grunt){
 
   require('load-grunt-tasks')(grunt);
 
-  grunt.registerTask('test', ['simplemocha']);
-  grunt.registerTask('test:all', ['simplemocha', 'karma:once']);
+  grunt.registerTask('test',       ['jshint:src','karma:once']);
+  grunt.registerTask('test:mocha', ['simplemocha']);
+  grunt.registerTask('test:karma', ['karma:once']);
 
-  grunt.registerTask('testwatch', ['watch:fast']);
-  grunt.registerTask('testwatch:all', ['watch:all']);
-
-  grunt.registerTask('build', ['test:all', 'uglify']);
-  grunt.registerTask('default', ['test']);
-  grunt.registerTask('publish', ['test:all','bump-only','uglify','bump-commit']);
+  grunt.registerTask('build',   ['test', 'uglify']);
+  grunt.registerTask('default', ['build']);
+  grunt.registerTask('publish', ['test','bump-only','uglify','bump-commit']);
 
 };

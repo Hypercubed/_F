@@ -36,7 +36,7 @@
     };
 
     var rows = [
-      [1977,0],
+      [1977,0],      // 0
       [1978,0],
       [1979,0],
       [1980,43.7],
@@ -46,7 +46,7 @@
       [1984,14.88],
       [1985,11.31],
       [1986,13.51],
-      [1987,12.99],
+      [1987,12.99],  // 10
       [1988,13.13],
       [1989,13.84],
       [1990,8.89],
@@ -56,7 +56,7 @@
       [1994,3.35],
       [1995,6.04],
       [1996,6.32],
-      [1997,5.64],
+      [1997,5.64],  // 20
       [1998,4.71],
       [1999,4.61],
       [2000,3.96],
@@ -64,7 +64,7 @@
       [2002,2.34],
       [2003,2],
       [2004,2.28],
-      [2005,2.69],
+      [2005,2.69],  // 28
     ];
 
     beforeEach(function() {
@@ -348,6 +348,53 @@
         expect(F).to.be.a('function');
         expect(data.filter(F)).to.have.length(data.length - 10);
         expect(data.filter(F)[0]).to.equal(data[10]);
+      });
+    });
+
+    describe('#between', function() {
+      it('should work with key', function() {
+        //var f = _F('year').gt(newDate('1980')).and().lt(newDate('1990'));
+        var f = _F('year').between(newDate('1980'), newDate('1990'));
+
+        expect(f).to.be.a('function');
+        expect(f(data[0])).to.be.a('boolean');
+        expect(f(data[0])).to.equal(false);
+        expect(data.filter(f)).to.have.length(9);
+        expect(newDate.called).to.equal(2);
+      });
+
+      it('should work with $index', function() {
+        //var F = _F('$index').gt(10).and().lt(20);
+        var F = _F('$index').between(10,20);
+
+        expect(F).to.be.a('function');
+        expect(data.filter(F)).to.have.length(9);
+        expect(data.filter(F)[0]).to.equal(data[11]);
+      });
+    });
+
+    describe('#exists', function() {
+      it('should work with key', function() {
+        var f = _F('year').exists();
+
+        expect(f).to.be.a('function');
+        expect(f(data[0])).to.be.a('boolean');
+        expect(f({year: 1990, value:8.89})).to.equal(true);
+        expect(f({value:8.89})).to.equal(false);
+        expect(f({year:null})).to.equal(false);
+        expect(data.filter(f)).to.have.length(29);
+      });
+    });
+
+    describe('#typeof', function() {
+      it('should work with key', function() {
+        var f = _F('year').typeof('number');
+
+        expect(f).to.be.a('function');
+        expect(f(data[0])).to.be.a('boolean');
+        expect(f({year: 1990, value:8.89})).to.equal(true);
+        expect(f({year: '1990', value:8.89})).to.equal(false);
+        expect(data.filter(f)).to.have.length(29);
       });
     });
 
