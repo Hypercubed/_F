@@ -32,6 +32,14 @@ Hypercubed/_F is simply global shortcut for composable "d3 style" data accessors
 | `_F('$index')`          | `function(d, i) { return i; }`                 |
 | `_F('$this')`           | `function()     { return this; }`              |
 
+_Example_
+```js
+var data = [ { firstname: 'John', lastname: 'Smith', age: 51 }, /* ... */ ];
+var _firstname = _F('firstname');
+
+data.map(_firstname);  // Returns a list of first names
+```
+
 ### Operators
 
 | _F                      | Pure JS equivalent                                    |
@@ -45,19 +53,44 @@ Hypercubed/_F is simply global shortcut for composable "d3 style" data accessors
 | `_F('prop').in(array)`  | `function(d) { return  array.indexOf(d)      > -1; }` |
 | `_F('prop').has(value)` | `function(d) { return  d.prop.indexOf(value) > -1; }` |
 
+_Example_
+```js
+var _johns = _firstname.eq('John');
+
+data.filter(_johns);  // returns a list of John's
+```
+
 ### Chaining
 
-| _F                                      | Pure JS equivalent                                    |
-| --------------------------------------- | ----------------------------------------------------- |
-| `_F('prop').gt(value).and().lt(valueB)` | `function(d) { return (d.prop > value) &&  (d.prop < valueB); }` |
-| `_F('prop').lt(value).or().gt(valueB)`  | `function(d) { return (d.prop < value) ||  (d.prop > valueB); }` |
-| `_F('prop').gt(value).not().gt(valueB)` | `function(d) { return (d.prop > value) && !(d.prop > valueB); }` |
+| _F                                        | Pure JS equivalent                                               |
+| ----------------------------------------- | ---------------------------------------------------------------- |
+| `_F('prop').gt(value).and(fn)`            | `function(d) { return (d.prop > value) &&  fn(d); }`             |
+| `_F('prop').gt(value).or(fn)`             | `function(d) { return (d.prop > value) ||  fn(d); }`             |
+| `_F('prop').gt(value).not(fn)`            | `function(d) { return (d.prop > value) &&  !fn(d); }`            |
+| `_F('prop').gt(value).and().lt(valueB)`   | `function(d) { return (d.prop > value) &&  (d.prop < valueB); }` |
+| `_F('prop').lt(value).or().gt(valueB)`    | `function(d) { return (d.prop < value) ||  (d.prop > valueB); }` |
+| `_F('prop').gt(value).not().gt(valueB)`   | `function(d) { return (d.prop > value) && !(d.prop > valueB); }` |
+
+_Example_
+```js
+var _age = _F('age');
+var _twenties = _age.gte(20).and().lt(30);
+
+data.filter(_johns.and(_twenties));  // returns a list of John's in their twenties
+```
 
 ### Sorting
 
-| _F                     | Pure JS equivalent                            |
-| ---------------------- | --------------------------------------------- |
-| `_F('prop').order(fn)` | `function(a,b) { return fn(a.prop,b.prop); }` |
+| _F                        | Pure JS equivalent                            |
+| ------------------------- | --------------------------------------------- |
+| `_F('prop').order(fn)`    | `function(a,b) { return fn(a.prop,b.prop); }` |
+| `_F('prop').order().asc`  | `function(a,b) { return fn(ascending); }`     |
+| `_F('prop').order().desc` | `function(a,b) { return fn(decending); }`     |
+
+_Example_
+```js
+data.filter(_johns.and(_twenties)).sort(_age.order().asc);  // returns a list of John's in their twenties sorted by age in ascending order
+```
 
 ## Why?
 

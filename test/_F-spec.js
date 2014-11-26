@@ -77,6 +77,39 @@
       newDate.called  = 0;
     });
 
+    describe('example', function() {
+      it('should run', function() {
+        var people = [
+          { firstname: 'John',     lastname: 'Smith', age: 51 },
+          { firstname: 'John',     lastname: 'Hawley', age: 16 },
+          { firstname: 'Janet',    lastname: 'Howell', age: 23 },
+          { firstname: 'John',     lastname: 'Jones', age: 29 },
+          { firstname: 'John',     lastname: 'Hernandez', age: 22 },
+          { firstname: 'Maurice',  lastname: 'Hall', age: 22 }
+        ];
+
+        var _firstname = _F('firstname');
+        var _lastname = _F('firstname');
+        var _age = _F('age');
+
+        expect(people.map(_firstname)).to.eql(['John','John','Janet','John','John','Maurice']);  // Returns a list of first names
+
+        var _johns = _firstname.eq('John');
+
+        expect(people.filter(_johns)).to.have.length(4);  // returns a list of John's
+
+        var _twenties = _age.gte(20).and().lt(30);
+
+        expect(people.filter(_johns.and(_twenties))).to.have.length(2);  // returns a list of people in their twenties
+
+        var f = people.filter(_johns.and(_twenties)).sort(_age.order().asc);  // returns a list of John's in their twenties sorted by age
+        expect(f).to.have.length(2);
+        expect(f[0].age).to.eq(22);
+        expect(f[1].age).to.eq(29);
+
+      })
+    })
+
     describe('_F()', function() {
       it('should be a function', function() {
         expect(_F).to.be.a('function');
@@ -317,9 +350,9 @@
       });
     });
 
-    describe('#test', function() {
+    describe('#match', function() {
       it('should work with regex', function() {
-        var f = _F('year').test(/19[89]./);
+        var f = _F('year').match(/19[89]./);
 
         expect(f).to.be.a('function');
         expect(f(data[0])).to.be.a('boolean');
@@ -329,7 +362,7 @@
       });
 
       it('should work with string', function() {
-        var f = _F('year').test('19[89].');
+        var f = _F('year').match('19[89].');
 
         expect(f).to.be.a('function');
         expect(f(data[0])).to.be.a('boolean');
