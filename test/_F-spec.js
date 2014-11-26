@@ -5,6 +5,7 @@
     var _F = require('../_F');
     expect = require('chai').expect;
   } else {
+    var _F = window._F;
     var expect = chai.expect;
   }
 
