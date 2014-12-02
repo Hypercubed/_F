@@ -199,6 +199,11 @@
         expect(_F('date.year')(data)).to.equal(data.date.year);
       });
 
+      it('should work with nested data, with chained keys in array', function() {
+        var data = { 'date': { 'year': 1990 } };
+        expect(_F(['date','year'])(data)).to.equal(data.date.year);
+      });
+
       xit('should work with nested data, with chained keys and identity', function() {
         var data = { 'date': { 'year': { 'value': 1990 } } };
         expect(_F('date.')(data)).to.equal(data.date);
@@ -214,12 +219,20 @@
       });
 
       it('should work with numeric keys', function() {
-        expect(_F(0)(rows)).to.equal(rows[0]);
-        expect(_F(1)(rows)).to.equal(rows[1]);
-        expect(_F(1).eq(rows[1])(rows)).to.equal(true);
-        expect(_F(1).eq(rows[2])(rows)).to.equal(false);
+        var _secondElement = _F(1);
+        expect(_secondElement([1978,0])).to.equal(0);
+        expect(_secondElement(rows)).to.deep.equal([1978,0]);
+        expect(_secondElement.eq(rows[0])(rows)).to.equal(false);
+        expect(_secondElement.eq(rows[1])(rows)).to.equal(true);
       });
 
+      it('should work with numeric keys, including zero', function() {
+        var _firstElement = _F(0);
+        expect(_firstElement([1977,0])).to.equal(1977);
+        expect(_firstElement(rows)).to.deep.equal([1977,0]);
+        expect(_firstElement.eq(1977)([1977,0])).to.equal(true);
+        expect(_firstElement.eq(0)([1977,0])).to.equal(false);
+      });
     });
 
     describe('#eq', function() {

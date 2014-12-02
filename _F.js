@@ -30,6 +30,11 @@
   }
 
   // (private)
+  function exists(d) {
+    return d !== undefined && d !== null;
+  }
+
+  // (private)
   function ascending(a, b) {
     return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
   }
@@ -57,14 +62,19 @@
 
   // (private) constructs a accessor function based on a key
   function prop(key) {
-    if (key === undefined || key === null) return identity;
+    if (!exists(key)) return identity;
     if (typeof key === 'function') return apply(key);
     if (key === '$index') return function(d, i) { return i; };
     if (key === '$this') return function() { return this; };
     //if (typeof key === 'string' && key.match(/^\$\d+$/)) { key = parseInt(key.replace('$')); };
-    if (typeof key === 'number' || !key.match(/\./)) {return function(d) { return (d === null || d === undefined) ? undefined : d[key]; };}
+    if (typeof key === 'number') {
+      return function(d) { return exists(d) ? d[key] : undefined; };
+    }
+    if (typeof key === 'string' && key.indexOf('.') === -1 ) {
+      return function(d) { return exists(d) ? d[key] : undefined; };
+    }
 
-    var chain = key.split('.');
+    var chain = (Array.isArray(key)) ? key : key.split('.');
     var f = prop(chain.shift());
     var g = prop(chain.join('.'));
     return compose ( g, f );
@@ -103,19 +113,19 @@
   // -----
   // Operators take a value and return a new accessor function
   var _proto_ops = {
-    eq:     function(a,v) { return a  == v; },
-    is:     function(a,v) { return a === v; },
-    neq:    function(a,v) { return a !== v; },
-    lt:     function(a,v) { return a  <  v; },
-    gt:     function(a,v) { return a  >  v; },
-    lte:    function(a,v) { return a  <= v; },
-    gte:    function(a,v) { return a  >= v; },
-    between:    function(a,v,vv) { return a > v && a < vv; },
-    exists: function(a  ) { return a !== undefined && a !== null; },
-    typeof: function(a,v) { return typeof a === v; },
-    match:  function(a,v) { return (v instanceof RegExp) ? v.test(String(a)) : (new RegExp(v)).test(String(a)); },
-    in:     function(a,v) { return (Array.isArray(v)) ? v.indexOf(a) > -1 : String(v).indexOf(String(a)) > -1; },
-    has:    function(a,v) { return (Array.isArray(a)) ? a.indexOf(v) > -1 : String(a).indexOf(String(v)) > -1; }
+    eq:       function(a,v)   { return a  == v; },
+    is:       function(a,v)   { return a === v; },
+    neq:      function(a,v)   { return a !== v; },
+    lt:       function(a,v)   { return a  <  v; },
+    gt:       function(a,v)   { return a  >  v; },
+    lte:      function(a,v)   { return a  <= v; },
+    gte:      function(a,v)   { return a  >= v; },
+    between:  function(a,v,w) { return a > v && a < w; },
+    exists:   function(a  )   { return a !== undefined && a !== null; },
+    typeof:   function(a,v)   { return typeof a === v; },
+    match:    function(a,v)   { return (v instanceof RegExp) ? v.test(String(a)) : (new RegExp(v)).test(String(a)); },
+    in:       function(a,v)   { return (Array.isArray(v)) ? v.indexOf(a) > -1 : String(v).indexOf(String(a)) > -1; },
+    has:      function(a,v)   { return (Array.isArray(a)) ? a.indexOf(v) > -1 : String(a).indexOf(String(v)) > -1; }
   };
 
   // Chaining functions
@@ -225,7 +235,7 @@
     // Create base function object
     _fn = (typeof ret === 'function') ? compose(ret, _accessor) : _accessor;
     _fn.key = key;
-    _fn.accessor = (key) ? _accessor : undefined;
+    _fn.accessor = (key !== undefined && key !== null) ? _accessor : undefined;
 
     extend(_fn, _proto);
 
