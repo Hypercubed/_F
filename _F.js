@@ -9,6 +9,39 @@
 ;(function() {
   'use strict';
 
+  // (private)
+  function _each(object, fn) {
+    R.keys(object).forEach(function(key) {
+      fn(object[key], key);
+    });
+  }
+
+  // (private) Copies from one object to another
+  function _extend(destination, other) {
+    var props = R.keys(other),
+    idx = -1, length = props.length;
+    while (++idx < length) {
+      destination[props[idx]] = other[props[idx]];
+    }
+    return destination;
+  }
+
+  // (private)
+  function _curry2(fn) {
+    return function(a, b) {
+      switch (arguments.length) {
+        case 0:
+          throw _noArgsException();
+        case 1:
+          return function(b) {
+            return fn(a, b);
+          };
+        default:
+          return fn(a, b);
+      }
+    };
+  }
+
   var R;
 
   try {
@@ -17,7 +50,7 @@
 
   }
 
-  if (false) {
+  if (!R) {
 
     R = {};
 
@@ -101,23 +134,6 @@
   }
 
   // (private)
-  function _each(object, fn) {
-    R.keys(object).forEach(function(key) {
-      fn(object[key], key);
-    });
-  }
-
-  // (private) Copies from one object to another
-  function _extend(destination, other) {
-    var props = R.keys(other),
-    idx = -1, length = props.length;
-    while (++idx < length) {
-      destination[props[idx]] = other[props[idx]];
-    }
-    return destination;
-  }
-
-  // (private)
   function exists(d) {
     return d !== undefined && d !== null;
   }
@@ -133,14 +149,14 @@
   }
 
   // (private)
-  function compose ( g, f ){
+  function rcompose ( g, f ){
     return function ( d, i, j ){
       return g.call(this, f.apply(this, arguments), i, d);
     };
   }
 
-  // (private)
-  function curry2(fn) {
+  // (private) Like curry, but last argument is first
+  function rcurry(fn) {
     return function() {
       var vArgs = Array.prototype.slice.call(arguments);
       return function(a) {
@@ -178,13 +194,8 @@
     if (typeof key === 'function') return R.arity(1,key);
     if (key === '$index') return function(d, i) { return i; };
     if (key === '$this') return function() { return this; };
-    //if (typeof key === 'string' && key.match(/^\$\d+$/)) { key = parseInt(key.replace('$')); };
-    if (typeof key === 'number') {
-      return _prop(key);
-    }
-    if (typeof key === 'string' && key.indexOf('.') === -1 ) {
-      return _prop(key);
-    }
+    if (typeof key === 'number') { return _prop(key); }
+    if (typeof key === 'string' && key.indexOf('.') === -1 ) { return _prop(key); }
 
     var chain = (Array.isArray(key)) ? key : key.split('.');
     var f = prop(chain.shift());
@@ -200,14 +211,14 @@
   // Operators take a value and return a new accessor function
   var _proto_ops = {
     eq:       function(a,v)   { return a  == v; },
-    is:       R.eq  || function(a,v)   { return a === v; },
-    neq:      R.compose(R.not, R.eq) || function(a,v)   { return a !== v; },
-    lt:       R.lt  || function(a,v)   { return a  <  v; },
-    gt:       R.gt  || function(a,v)   { return a  >  v; },
-    lte:      R.lte || function(a,v)   { return a  <= v; },
-    gte:      R.gte || function(a,v)   { return a  >= v; },
+    is:       function(a,v)   { return a === v; },
+    neq:      function(a,v)   { return a !== v; },
+    lt:       function(a,v)   { return a  <  v; },
+    gt:       function(a,v)   { return a  >  v; },
+    lte:      function(a,v)   { return a  <= v; },
+    gte:      function(a,v)   { return a  >= v; },
     between:  function(a,v,w) { return a > v && a < w; },
-    exists:   exists,
+    exists:   function(a)     { return a !== undefined && a !== null; },
     typeof:   function(a,v)   { return R.type(a).toLowerCase() === v; },
     match:    function(a,v)   { return (v instanceof RegExp) ? v.test(String(a)) : (new RegExp(v)).test(String(a)); },
     in:       function(a,v)   { return (Array.isArray(v)) ? v.indexOf(a) > -1 : String(v).indexOf(String(a)) > -1; },
@@ -226,18 +237,6 @@
     }
   };
 
-  /* _proto.chainFn = function(f, _c) {
-      if (_c.hasOwnProperty('accessor') && _c.accessor === undefined) {
-        _c = factory(this.accessor, _c);
-      }
-      return f(this, _c);
-  } */
-
-
-  //function apply(f) {
-  //  return function() { return f.apply(this, arguments); }
-  //}
-
   _proto.factory = function(g) {
     return factory(this.accessor, g);
   };
@@ -249,21 +248,16 @@
     return g;
   };
 
-  _proto.partial = function() {
-    var args = Array.prototype.slice.call(arguments);
-    args.push(this);
-    return R.lPartial.apply(this,args);
-  };
-
   _proto.wrap = function(f) {
-    var _g = R.compose(this.partial.apply(this,arguments), this._factory);
+    var _f = R.lPartial(flip(f),this);
+    var _g = R.compose(_f, this._factory);
     return R.compose(_proto.factory, _g);
   };
 
   _proto.chain = function(fn) {
     return function() {
       var self = this;
-      var _fn = this.wrap(flip(fn));
+      var _fn = this.wrap(fn);
 
       if (arguments.length < 1) {
         var f = {};
@@ -297,7 +291,7 @@
 
   // Wraps operators in factor generator
   _each(_proto_ops, function(v,k) {
-    _proto[k] = R.compose(_proto.factory, curry2(v));
+    _proto[k] = R.compose(_proto.factory, rcurry(v));
   });
 
   // Wraps chain functions (and, or, not) and adds to prototype
@@ -314,7 +308,7 @@
         _fn;
 
     // Create base function object
-    _fn = (typeof ret === 'function') ? compose(ret, _accessor) : _accessor;
+    _fn = (typeof ret === 'function') ? rcompose(ret, _accessor) : _accessor;
     _fn.key = key;
     _fn.accessor = exists(key) ? _accessor : undefined;
 
