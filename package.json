@@ -43,7 +43,7 @@
     "node_modules/",
     "bower_components/",
     ".grunt/",
-    "docs/"
-    "test/",
+    "docs/",
+    "test/"
   ]
 }
