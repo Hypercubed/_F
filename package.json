@@ -40,10 +40,10 @@
   "homepage": "https://github.com/Hypercubed/_F",
   "ignore": [
     "**/.*",
-    "node_modules/",
-    "bower_components/",
-    ".grunt/",
-    "docs/",
-    "test/"
+    "node_modules",
+    "bower_components",
+    ".grunt",
+    "docs",
+    "test"
   ]
 }
