@@ -2,6 +2,8 @@
 
 Functional chaining in js.
 
+**deprecated** please consider using [Hypercubed/florida-keys](https://github.com/Hypercubed/florida-keys).
+
 ## Usage
 1. `bower install Hypercubed/_F`
 2. Include the `_F.js` script into your app.  By default should be at `bower_components/_F/_F.js`
